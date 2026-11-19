@@ -1,7 +1,10 @@
 package rs.doyoulikestai.bigjar;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -10,6 +13,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.common.crafting.IRecipeContainer;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -21,6 +25,8 @@ import rs.doyoulikestai.bigjar.item.BigJarItems;
 import rs.doyoulikestai.bigjar.datagen.BigJarRecipeProvider;
 import rs.doyoulikestai.bigjar.particle.BigJarParticles;
 import rs.doyoulikestai.bigjar.sound.BigJarSounds;
+
+import java.util.concurrent.CompletableFuture;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(BigJar.MODID)
@@ -43,7 +49,6 @@ public class BigJar {
         modEventBus.addListener(this::addCreative);
 
         modEventBus.addListener(BigJar::onGatherData);
-        modEventBus.addListener(BigJar::onGatherServerData);
         modEventBus.addListener(BigJarAttributes::modifyDefaultAttributes);
 
         CREATIVE_MODE_TABS.register(modEventBus);
@@ -68,12 +73,14 @@ public class BigJar {
     }
 
     @SubscribeEvent
-    public static void onGatherData(GatherDataEvent.Client event) {
-        event.createProvider(BigJarRecipeProvider.Runner::new);
-    }
+    public static void onGatherData(GatherDataEvent event) {
+        DataGenerator generator = event.getGenerator();
+        PackOutput output = generator.getPackOutput();
+        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
-    @SubscribeEvent
-    public static void onGatherServerData(GatherDataEvent.Server event) {
-        event.createProvider(BigJarRecipeProvider.Runner::new);
+        generator.addProvider(
+                event.includeServer(),
+                new BigJarRecipeProvider(output, lookupProvider)
+        );
     }
 }

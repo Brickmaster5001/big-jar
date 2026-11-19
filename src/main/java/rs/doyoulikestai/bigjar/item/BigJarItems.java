@@ -3,18 +3,19 @@ package rs.doyoulikestai.bigjar.item;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemUseAnimation;
-import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
-import net.minecraft.world.item.consume_effects.ConsumeEffect;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.client.event.RegisterItemModelsEvent;
+import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RegisterSpriteSourceTypesEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import rs.doyoulikestai.bigjar.effect.BigJarEffects;
-import rs.doyoulikestai.bigjar.sound.BigJarSounds;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import static rs.doyoulikestai.bigjar.BigJar.MODID;
 
@@ -36,20 +37,19 @@ public class BigJarItems {
     public static final DeferredItem<Item> LITTLE_JAR_OF_LUBRICANT = ITEMS.registerItem(
         "little_jar_of_lubricant",
         LittleJarOfLubricantItem::new,
-        new Item.Properties().stacksTo(16).component(DataComponents.CONSUMABLE,
-                Consumable.builder()
-                        .animation(ItemUseAnimation.BRUSH)
-                        .consumeSeconds(1.0f)
-                        .hasConsumeParticles(false)
-                        .sound(BigJarSounds.LITTLE_JAR_OF_LUBRICANT_USE)
-                        .onConsume(
-                                new ApplyStatusEffectsConsumeEffect(new MobEffectInstance(
+        new Item.Properties().stacksTo(16).component(DataComponents.FOOD,
+                new FoodProperties(0, 0.0f, true, 1.0f, Optional.empty(), List.of(
+                        new FoodProperties.PossibleEffect(new Supplier<MobEffectInstance>() {
+                            @Override
+                            public MobEffectInstance get() {
+                                return new MobEffectInstance(
                                         BigJarEffects.LUBRICATED,
                                         LittleJarOfLubricantItem.LUBRICATED_EFFECT_DURATION,
                                         0, false, false, true
-                                ))
-                        )
-                        .build()
+                                );
+                            }
+                        }, 1.0f)
+                ))
         )
     );
 
@@ -58,7 +58,9 @@ public class BigJarItems {
         eventBus.addListener(BigJarItems::registerItemModels);
     }
 
-    public static void registerItemModels(RegisterItemModelsEvent event) {
+    public static void registerItemModels(ModelEvent event) {
+        event.
+
         event.register(
             ResourceLocation.fromNamespaceAndPath(MODID, "big_jar_composited"),
             BigJarItemModel.Unbaked.MAP_CODEC

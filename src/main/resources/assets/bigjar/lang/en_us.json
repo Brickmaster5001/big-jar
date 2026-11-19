@@ -6,5 +6,6 @@
   "item.bigjar.little_jar_of_lubricant": "Little Jar of Lubricant",
   "effect.bigjar.lubricated": "Lubricated",
   "context.bigjar.cannot_be_jarred": "Mob cannot be jarred",
-  "context.bigjar.requires_lubricant_to_jar": "Mob must be lubricated first"
+  "context.bigjar.requires_lubricant_to_jar": "Mob must be lubricated first",
+  "context.bigjar.failed_save_entity_to_jar": "Mob data failed to save"
 }

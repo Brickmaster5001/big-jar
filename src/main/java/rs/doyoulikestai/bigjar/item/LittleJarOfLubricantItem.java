@@ -22,7 +22,7 @@ public class LittleJarOfLubricantItem extends Item {
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity entity, InteractionHand usedHand) {
         if (!(player instanceof ServerPlayer)) return InteractionResult.SUCCESS;
         if (usedHand != InteractionHand.MAIN_HAND) return InteractionResult.FAIL;
-        if (player.getCooldowns().isOnCooldown(stack)) return InteractionResult.FAIL;
+        if (player.getCooldowns().isOnCooldown(stack.getItem())) return InteractionResult.FAIL;
         if (isUnjarrable(entity)) return InteractionResult.FAIL;
 
         entity.addEffect(new MobEffectInstance(BigJarEffects.LUBRICATED, LUBRICATED_EFFECT_DURATION, 0, false, false, true));

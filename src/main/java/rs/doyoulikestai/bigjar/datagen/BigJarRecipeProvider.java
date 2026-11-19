@@ -1,12 +1,10 @@
 package rs.doyoulikestai.bigjar.datagen;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
@@ -14,14 +12,17 @@ import rs.doyoulikestai.bigjar.item.BigJarItems;
 
 import java.util.concurrent.CompletableFuture;
 
+import static net.minecraft.data.recipes.ShapedRecipeBuilder.shaped;
+import static net.minecraft.data.recipes.ShapelessRecipeBuilder.shapeless;
+
 public class BigJarRecipeProvider extends RecipeProvider {
 
-    protected BigJarRecipeProvider(HolderLookup.Provider provider, RecipeOutput output) {
-        super(provider, output);
+    public BigJarRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> provider) {
+        super(output, provider);
     }
 
     @Override
-    protected void buildRecipes() {
+    protected void buildRecipes(RecipeOutput output) {
         shaped(RecipeCategory.TOOLS, BigJarItems.BIG_JAR_ITEM)
             .pattern("www")
             .pattern("geg")
@@ -50,22 +51,5 @@ public class BigJarRecipeProvider extends RecipeProvider {
                 .requires(BigJarItems.LITTLE_JAR)
                 .unlockedBy("has_big_jar", has(BigJarItems.BIG_JAR_ITEM))
                 .save(output);
-    }
-
-    public static class Runner extends RecipeProvider.Runner {
-
-        public Runner(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-            super(output, lookupProvider);
-        }
-
-        @Override
-        protected @NotNull RecipeProvider createRecipeProvider(HolderLookup.Provider provider, RecipeOutput output) {
-            return new BigJarRecipeProvider(provider, output);
-        }
-
-        @Override
-        public @NotNull String getName() {
-            return "Big Jar Recipes";
-        }
     }
 }

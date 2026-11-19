@@ -1,10 +1,8 @@
 package rs.doyoulikestai.bigjar.item;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.renderer.texture.atlas.sources.Unstitcher;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -13,17 +11,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -32,10 +28,8 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.data.LanguageProvider;
 import org.jetbrains.annotations.NotNull;
 import rs.doyoulikestai.bigjar.BigJar;
 import rs.doyoulikestai.bigjar.effect.BigJarEffects;
@@ -47,9 +41,11 @@ import rs.doyoulikestai.bigjar.util.RNG;
 import java.util.Objects;
 
 public class BigJarItem extends Item {
-
     public static final TagKey<EntityType<?>> UNJARRABLE_TAG = TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(BigJar.MODID, "unjarrable"));
     public static final TagKey<EntityType<?>> REQUIRES_LUBRICANT_TO_JAR_TAG = TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(BigJar.MODID, "requires_lubricant_to_jar"));
+
+    private static final MapCodec<EntityType<?>> ENTITY_TYPE_FIELD_CODEC = BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("id");
+
     private static final int COOLDOWN_TICKS = 10;
     private static final float POOF_PARTICLE_SPEED = 0.15f;
 
@@ -62,7 +58,7 @@ public class BigJarItem extends Item {
         if (!(player instanceof ServerPlayer)) return InteractionResult.SUCCESS;
 
         if (usedHand != InteractionHand.MAIN_HAND) return InteractionResult.FAIL;
-        if (player.getCooldowns().isOnCooldown(stack)) return InteractionResult.FAIL;
+        if (player.getCooldowns().isOnCooldown(stack.getItem())) return InteractionResult.FAIL;
         if (isUnjarrable(interactionTarget)) {
             player.playSound(SoundEvents.NOTE_BLOCK_SNARE.value(), 1.0f, RNG.RANDOM.nextFloat() * 0.4f + 1.2f);
             PlayerMessenger.broadcastActionbar(Component.translatable("context.bigjar.cannot_be_jarred").getString(), ChatFormatting.RED);
@@ -81,13 +77,15 @@ public class BigJarItem extends Item {
         interactionTarget.stopRiding();
         interactionTarget.ejectPassengers();
 
-        TagValueOutput output = TagValueOutput.createWithoutContext(ProblemReporter.DISCARDING);
-        interactionTarget.saveAsPassenger(output);
+        CompoundTag targetData = new CompoundTag();
 
-        output.discard("Pos");
-        output.discard("Motion");
+        if (!interactionTarget.saveAsPassenger(targetData)) {
+            PlayerMessenger.broadcastActionbar(Component.translatable("context.bigjar.failed_save_entity_to_jar").getString(), ChatFormatting.RED);
+            return InteractionResult.FAIL;
+        }
 
-        CompoundTag targetData = output.buildResult();
+        targetData.remove("Pos");
+        targetData.remove("Motion");
 
         ItemStack heldItem = player.getItemInHand(InteractionHand.MAIN_HAND);
         heldItem.set(DataComponents.ENTITY_DATA, CustomData.of(targetData));
@@ -95,7 +93,7 @@ public class BigJarItem extends Item {
             heldItem.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
             heldItem.set(DataComponents.RARITY, Rarity.UNCOMMON);
         };
-        player.getCooldowns().addCooldown(stack, COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(stack.getItem(), COOLDOWN_TICKS);
         //interactionTarget.getBoundingBox().;
         if ((interactionTarget.level() instanceof ServerLevel serverLevel)) {
             //AABB bounds = interactionTarget.getBoundingBox();
@@ -129,12 +127,15 @@ public class BigJarItem extends Item {
         ItemStack stack = context.getItemInHand();
         if (!(stack.get(DataComponents.ENTITY_DATA) instanceof CustomData storedEntity) || storedEntity.isEmpty()) return InteractionResult.FAIL;
         assert serverLevel != null;
-        Entity entity = BuiltInRegistries.ENTITY_TYPE.getValue(storedEntity.parseEntityId()).spawn(
+
+        EntityType<?> entityType = storedEntity.read(ENTITY_TYPE_FIELD_CODEC).result().orElse(EntityType.COD); // Because whatever atp
+
+        Entity entity = entityType.spawn(
             serverLevel,
             stack,
             null,
             context.getClickedPos(),
-            EntitySpawnReason.SPAWN_ITEM_USE,
+            MobSpawnType.SPAWN_EGG,
             true,
             false
         );
@@ -158,7 +159,7 @@ public class BigJarItem extends Item {
         );
 
         serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), BigJarSounds.BIG_JAR_USE_SOUND.value(), SoundSource.PLAYERS, 1.0f, RNG.RANDOM.nextFloat() * 0.4f + 1.2f);
-        player.getCooldowns().addCooldown(stack, COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(stack.getItem(), COOLDOWN_TICKS);
         return super.useOn(context);
     }
 
@@ -168,9 +169,10 @@ public class BigJarItem extends Item {
             return stack.getComponents().getOrDefault(DataComponents.ITEM_NAME, CommonComponents.EMPTY);
         }
         if (storedEntity.contains("CustomName")) {
-            return Component.translatable(this.getDescriptionId() + ".full", Component.literal(storedEntity.copyTag().getString("CustomName").get()).withStyle(ChatFormatting.ITALIC));
+            return Component.translatable(this.getDescriptionId() + ".full", Component.literal(storedEntity.copyTag().getString("CustomName")).withStyle(ChatFormatting.ITALIC));
         } else {
-            return Component.translatable(this.getDescriptionId() + ".full", Component.translatable(BuiltInRegistries.ENTITY_TYPE.getValue(storedEntity.parseEntityId()).getDescriptionId()));
+            EntityType<?> entityType = storedEntity.read(ENTITY_TYPE_FIELD_CODEC).result().orElse(EntityType.COD); // Because whatever atp
+            return Component.translatable(this.getDescriptionId() + ".full", Component.translatable(entityType.getDescriptionId()));
         }
     }
 
