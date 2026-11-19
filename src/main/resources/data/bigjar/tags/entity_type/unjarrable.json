@@ -1,0 +1,14 @@
+{
+  "values": [
+    "minecraft:armor_stand",
+    "minecraft:ender_dragon",
+    "#minecraft:boat",
+    "#minecraft:redirectable_projectile",
+    "#minecraft:arrows",
+    "#minecraft:impact_projectiles",
+    "#c:boats",
+    "#c:capturing_not_supported",
+    "#c:minecarts",
+    "#c:bosses"
+  ]
+}

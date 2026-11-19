@@ -1,0 +1,10 @@
+{
+  "item.big_jar.on_use": {
+    "sounds": [
+      {
+        "name": "bigjar:jar_use_mono_1",
+        "volume": 0.4
+      }
+    ]
+  }
+}

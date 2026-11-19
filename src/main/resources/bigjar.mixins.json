@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "rs.doyoulikestai.bigjar.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "rs.doyoulikestai.bigjar.mixin.BigJarMixinPlugin",
+  "refmap": "bigjar.refmap.json",
+  "mixins": [
+    "BlockStateExtensionMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

@@ -1,0 +1,16 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "property": "minecraft:has_component",
+    "component": "minecraft:entity_data",
+    "ignore_default": true,
+    "on_true": {
+      "type": "bigjar:big_jar_composited",
+      "model": "bigjar:item/big_jar_filled"
+    },
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "bigjar:item/big_jar_empty"
+    }
+  }
+}

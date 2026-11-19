@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "minecraft:honeycomb",
+    "minecraft:slime_ball",
+    "bigjar:little_jar",
+    "bigjar:little_jar",
+    "bigjar:little_jar",
+    "bigjar:little_jar"
+  ],
+  "result": {
+    "count": 4,
+    "id": "bigjar:little_jar_of_lubricant"
+  }
+}

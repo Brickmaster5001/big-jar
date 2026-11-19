@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "e": "minecraft:ender_pearl",
+    "g": "minecraft:glass",
+    "w": "#minecraft:wooden_slabs"
+  },
+  "pattern": [
+    "www",
+    "geg",
+    "ggg"
+  ],
+  "result": {
+    "count": 1,
+    "id": "bigjar:big_jar"
+  }
+}

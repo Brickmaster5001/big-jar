@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_big_jar": {
+      "conditions": {
+        "items": [
+          {
+            "items": "bigjar:big_jar"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "bigjar:little_jar_of_lubricant"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_big_jar"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "bigjar:little_jar_of_lubricant"
+    ]
+  }
+}

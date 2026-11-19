@@ -1,0 +1,10 @@
+{
+  "itemGroup.bigjar": "Big Jar",
+  "item.bigjar.big_jar": "Big Jar",
+  "item.bigjar.big_jar.full": "Big Jar of %s",
+  "item.bigjar.little_jar": "Little Jar",
+  "item.bigjar.little_jar_of_lubricant": "Little Jar of Lubricant",
+  "effect.bigjar.lubricated": "Lubricated",
+  "context.bigjar.cannot_be_jarred": "Mob cannot be jarred",
+  "context.bigjar.requires_lubricant_to_jar": "Mob must be lubricated first"
+}

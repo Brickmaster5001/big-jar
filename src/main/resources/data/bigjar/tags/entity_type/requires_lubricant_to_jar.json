@@ -1,0 +1,23 @@
+{
+  "values": [
+    "minecraft:guardian",
+    "minecraft:elder_guardian",
+    "minecraft:iron_golem",
+    "minecraft:villager",
+    "minecraft:breeze",
+    "#minecraft:undead",
+    "#minecraft:redirectable_projectile",
+    "#minecraft:arthropod",
+    "#minecraft:raiders",
+    "#minecraft:illager",
+    "#minecraft:illager_friends",
+    "#c:teleporting_not_supported",
+    "#minecraft:wither_friends",
+    "minecraft:blaze",
+    "minecraft:creaking",
+    "minecraft:piglin",
+    "minecraft:zoglin",
+    "minecraft:piglin_brute",
+    "minecraft:zombified_piglin"
+  ]
+}
